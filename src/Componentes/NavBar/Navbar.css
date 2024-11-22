@@ -1,0 +1,15 @@
+.fixed-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #25e91b;
+    padding: 1rem;
+}
+
+
+.content {
+    padding-top: 1spx; 
+    display: inline-block;
+}
