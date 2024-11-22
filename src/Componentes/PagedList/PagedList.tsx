@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Share from '../Sharecards/Share';
 import { FetchShareListPaged } from '../../Servicos/Login';
 import './PagedList.css';
+import Sidebar from '../SideBar/SideBar';
 
 const PagedList: React.FC = () => {
     const [shares, setShares] = useState<any[]>([]);
