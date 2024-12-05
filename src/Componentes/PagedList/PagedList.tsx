@@ -1,70 +1,104 @@
 import React, { useEffect, useState } from 'react';
-import Share from '../Sharecards/Share';
+import { AcaoProps } from '../../Interfaces/AcaoProps';
 import { FetchShareListPaged } from '../../Servicos/Login';
-import './PagedList.css';
-import Sidebar from '../SideBar/SideBar';
+import AcaoDisplay from '../ShareDisplay/ShareDisplay';
 
 const PagedList: React.FC = () => {
-    const [shares, setShares] = useState<any[]>([]);
-    const [page] = useState(1);
-    const [resultsPerPage] = useState(6); // 6 resultados por página
+    const [acoes, setAcoes] = useState<AcaoProps[]>([]);
+    const [totalRecords, setTotalRecords] = useState<number>(0);
+    const [page, setPage] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const resultsByPage = 8;
+    const [favorites, setFavorites] = useState<string[]>([]);
+
+    const handleToggleFavorite = (symbol: string) => {
+        setFavorites((prevFavorites) => {
+            const updatedFavorites = prevFavorites.includes(symbol)
+                ? prevFavorites.filter((fav) => fav !== symbol)
+                : [...prevFavorites, symbol];
+
+            localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+            return updatedFavorites;
+        });
+    };
 
     useEffect(() => {
-        const fetchShares = async () => {
+        const fetchAcoes = async () => {
             try {
-                const data = await FetchShareListPaged(page, resultsPerPage);
-                setShares(data);
-            } catch (error) {
-                console.error('Erro ao carregar ações: ', error);
+                setLoading(true);
+                const data = await FetchShareListPaged(page, resultsByPage);
+
+                setAcoes(data.items);
+                setTotalRecords(data.totalCount);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchShares();
-    }, [page, resultsPerPage]);
+        fetchAcoes();
+        const storedFavorites = localStorage.getItem("favorites");
+        if (storedFavorites) {
+            setFavorites(JSON.parse(storedFavorites));
+        }
+    }, [page, resultsByPage]);
+
+    const onPageChange = (newPage: number) => {
+        setPage(newPage);
+    };
+
+    if (loading) return <div className="flex items-center justify-center h-full"><span className="text-lg text-gray-500">Loading ...</span></div>;
+    if (error) return <div className="flex items-center justify-center h-full"><span className="text-lg text-red-500">Error: {error}</span></div>;
+
+    const totalPages = Math.ceil(totalRecords / resultsByPage);
 
     return (
-        <>
-            <div id="carouselExampleInterval" className="carousel slide" data-bs-ride="carousel">
-            <div className="carousel-inner">
-                    <div className="carousel-item active" data-bs-interval="10000">
-                        <div className="row">
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                            <div className="col-4 card-spacing">
-                                <Share logoUrl="https://s3-symbol-logo.tradingview.com/brasileiro-petrobras--big.svg" longName="Petróleo Brasileiro S.A. - Petrobras" symbol="PETR4" regularMarketPrice="2,000"/>
-                            </div>
-                        </div>
+        <div className="p-6">
+            <h1 className="text-2xl font-bold mb-4">Lista de Ações</h1>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {acoes.map((acao) => (
+                    <div key={acao.symbol} className="flex justify-center">
+                        <AcaoDisplay
+                            symbol={acao.symbol}
+                            logourl={acao.logourl}
+                            shortName={acao.shortName}
+                            currency={acao.currency}
+                            regularMarketPrice={acao.regularMarketPrice}
+                            regularMarketDayRange={acao.regularMarketDayRange}
+                            regularMarketDayHigh={acao.regularMarketDayHigh}
+                            onToggleFavorite={handleToggleFavorite}
+                            isFavorite={favorites.includes(acao.symbol)}
+                        />
                     </div>
-                    {/* Adicione mais carousel-item conforme necessário */}
-                </div>
-                <div className='button-margin'>
-                    <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
-                        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span className="visually-hidden">Previous</span>
+                ))}
+            </div>
+
+            <div className="flex justify-center mt-6">
+                <div className="flex space-x-2 items-center">
+                    <button
+                        disabled={page === 1}
+                        onClick={() => onPageChange(page - 1)}
+                        className={`px-4 py-2 bg-blue-600 text-white rounded-lg ${page === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                    >
+                        Anterior
                     </button>
-                    <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
-                        <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span className="visually-hidden">Next</span>
+                    <span className="text-lg">
+                        {page} de {totalPages}
+                    </span>
+                    <button
+                        disabled={page >= totalPages}
+                        onClick={() => onPageChange(page + 1)}
+                        className={`px-4 py-2 bg-blue-600 text-white rounded-lg ${page >= totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                    >
+                        Próximo
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
-}
+};
 
 export default PagedList;

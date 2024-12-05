@@ -1,5 +1,5 @@
 import Login from '../../Paginas/Login/Login';
-import './NavBar.css'; // Importando o CSS específico para o NavBar
+import './NavBar.css'; 
 
 const NavBar = () => {
     return (

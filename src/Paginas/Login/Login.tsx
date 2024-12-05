@@ -16,7 +16,7 @@ const UserFrom = () => {
                 sessionStorage.setItem('token', response.data.token);               
                 const testeRecuperaDado = sessionStorage.getItem('token');
                 alert('Dado Recuperado do session storage: ' + testeRecuperaDado);
-                navigate("/teste");
+                navigate("/home");
         }}
         catch (error){
             console.error(error);
@@ -43,6 +43,13 @@ const UserFrom = () => {
                     </div>
                     <button type="submit" className='space-button'>Enviar</button>
                 </div>
+                <div className='LogoForm image-container'>
+                        <img 
+                            src='/src/assets/investments-graphic.png' 
+                            alt='Atração de Investidores' 
+                            style={{ width: '100%', height: 'auto' }}
+                        />
+                    </div>
             </form>
         </>
     );

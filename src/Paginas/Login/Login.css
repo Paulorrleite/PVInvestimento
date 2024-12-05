@@ -1,13 +1,11 @@
-/* Contêiner que coloca a imagem à esquerda e o formulário à direita */
 .login-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    height: 25px; /* Ajusta o tamanho da barra de navegação */
+    height: 25px;
 }
 
-/* Estilizando o formulário */
 .LoginForm {
     flex: 1;
     display: flex;
@@ -15,7 +13,6 @@
     align-items: center;
 }
 
-/* Estilizando o formulário para que os inputs e o botão fiquem em linha */
 .login-form-inline {
     display: flex;
     align-items: center;
@@ -43,14 +40,13 @@
     background-color: #37577a;
 }
 
-/* Estilizando a imagem */
 .image-container {
     display: flex;
-    justify-content: flex-start;  /* Alinha os itens ao início (à esquerda) */
-    align-items: flex-start;      /* Alinha os itens ao topo */
-    padding-right: 0;             /* Remove o preenchimento à direita */
-    margin-left: 0;               /* Remove a margem à esquerda */
-    width: 100%;                  /* A largura da DIV ocupa toda a tela */
+    justify-content: flex-start;  
+    align-items: flex-start;      
+    padding-right: 0;             
+    margin-left: 0;               
+    width: 100%;                  
 }
 
 
